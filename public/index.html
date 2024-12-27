@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sherlock Holmes Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .chatbox {
+      width: 350px;
+      height: 600px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+      position: relative;
+    }
+
+    #messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-right: 10px;
+      margin-bottom: 20px;
+    }
+
+    .message {
+      max-width: 75%;
+      margin: 10px 0;
+      padding: 10px 15px;
+      border-radius: 15px;
+      line-height: 1.4;
+      font-size: 14px;
+      position: relative;
+    }
+
+    .user {
+      background-color: #0D47A1;
+      color: white;
+      text-align: right;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+    }
+
+    .bot {
+      background-color: #E0E0E0;
+      text-align: left;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+    }
+
+    input[type="text"] {
+      width: calc(100% - 40px);
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      outline: none;
+      padding-left: 20px;
+    }
+
+    input[type="text"]::placeholder {
+      color: #b0b0b0;
+    }
+
+    .chatbox:after {
+      content: "";
+      width: 100%;
+      height: 3px;
+      background-color: #0D47A1;
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+    }
+
+    /* Scrollbar styling for messages container */
+    #messages::-webkit-scrollbar {
+      width: 5px;
+    }
+    #messages::-webkit-scrollbar-thumb {
+      background-color: #888;
+      border-radius: 5px;
+    }
+    #messages::-webkit-scrollbar-thumb:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+
+<div class="chatbox" id="chatbox">
+  <div id="messages"></div>
+  <input type="text" id="userInput" placeholder="Type your message here...">
+</div>
+
+<script>
+  const userInputField = document.getElementById('userInput');
+  const messagesContainer = document.getElementById('messages');
+
+  userInputField.addEventListener('keypress', async function (e) {
+    if (e.key === 'Enter') {
+      const userMessage = userInputField.value;
+
+      // Display user message
+      displayMessage(userMessage, 'user');
+
+      // Send message to the backend
+      const response = await fetch('/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userInput: userMessage }),
+      });
+
+      const data = await response.json();
+
+      // Display bot response
+      displayMessage(data.response, 'bot');
+
+      // Clear the input field
+      userInputField.value = '';
+    }
+  });
+
+  function displayMessage(message, sender) {
+    const messageElement = document.createElement('div');
+    messageElement.textContent = message;
+    messageElement.classList.add('message', sender);
+    messagesContainer.appendChild(messageElement);
+
+    // Scroll to the latest message
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+</script>
+
+</body>
+</html>
